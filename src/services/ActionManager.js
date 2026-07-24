@@ -57,25 +57,7 @@ class ActionManager {
     const aporosCount = aporos.length;
 
     if (aporosCount > 0 && (room.protestsCount / aporosCount) >= 0.40) {
-      room.status = 'ASAMBLEA';
-      room.specialAlert = {
-        title: '✊ ASAMBLEA Y HUELGA SOCIAL DE PRECARIZADOS (QUÓRUM ALCANZADO)',
-        message: 'Los ciudadanos precarizados han convocado una Huelga Social masiva. El sistema económico se paraliza.',
-        quote: '«La movilización de los excluidos visibiliza que la pobreza es una injusticia distributiva, no una fatalidad del destino.»'
-      };
-    } else {
-      room.specialAlert = {
-        title: '✊ INICIO DE HUELGA SOCIAL',
-        message: `Un grupo de ciudadanos precarizados ha iniciado protestas (${room.protestsCount} participantes). Si alcanzan el 40%, convocarán Asamblea.`,
-        quote: '«La movilización de los excluidos visibiliza que la pobreza es una injusticia distributiva, no una fatalidad del destino.»'
-      };
-    }
-    MetricsCalculator.updateMetrics(room);
-    return { success: true, protestsCount: room.protestsCount };
-  }
-
-  static resolveAssemblyVote(room, voteResult) {
-    if (voteResult === 'APROBADO') {
+      // Execute assembly automatically
       const elites = Array.from(room.players.values()).filter(p => p.role === 'ÉLITE');
       const aporos = Array.from(room.players.values()).filter(p => p.role === 'ÁPORO');
       
@@ -90,13 +72,22 @@ class ActionManager {
         const share = Math.floor(totalExpropriated / aporos.length);
         aporos.forEach(a => { a.resources += share; });
       }
-    } else if (voteResult === 'RECHAZADO') {
-      room.giniPenaltyMultiplier = 1.5;
+
+      room.protestsCount = 0; // Reset after successful revolution
+      room.specialAlert = {
+        title: '✊ REVOLUCIÓN SOCIAL (QUÓRUM ALCANZADO)',
+        message: `La Huelga Social triunfó. Se ha expropiado el 20% de la riqueza acumulada de la Élite (${totalExpropriated} Pts) y se redistribuyó entre los precarizados.`,
+        quote: '«La movilización de los excluidos visibiliza que la pobreza es una injusticia distributiva, no una fatalidad del destino.»'
+      };
+    } else {
+      room.specialAlert = {
+        title: '✊ INICIO DE HUELGA SOCIAL',
+        message: `Un grupo de ciudadanos precarizados ha iniciado protestas (${room.protestsCount} participantes). Si alcanzan el 40%, convocarán Asamblea.`,
+        quote: '«La movilización de los excluidos visibiliza que la pobreza es una injusticia distributiva, no una fatalidad del destino.»'
+      };
     }
-    room.status = `CYCLE_${room.cycle}_PHASE_${room.phase}`;
-    room.specialAlert = null;
     MetricsCalculator.updateMetrics(room);
-    return { success: true };
+    return { success: true, protestsCount: room.protestsCount };
   }
 
   static makeDecision(room, solverSocketId, requestId, decisionChoice) {
@@ -105,9 +96,6 @@ class ActionManager {
     if (req.status === 'RESOLVED') return { error: 'Esta petición ya fue resuelta' };
 
     const solver = room.players.get(solverSocketId);
-    if (room.status === 'ASAMBLEA' && solver && solver.role === 'ÉLITE') {
-      return { error: 'BLOQUEADO: El sistema financiero está paralizado por la Asamblea. La Élite no puede realizar transacciones.' };
-    }
     if (decisionChoice === 'B' && solver && solver.resources < 10) {
       return { error: 'FONDOS INSUFICIENTES: La Opción B cuesta 10 Pts. No puedes salvar a todos.' };
     }

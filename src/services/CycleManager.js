@@ -82,11 +82,11 @@ class CycleManager {
 
     room.players.forEach(p => {
       if (p.role === 'ÉLITE') {
-        p.resources = cycleNum === 4 ? 150 : 100;
+        p.resources += cycleNum === 4 ? 150 : 100;
       } else if (p.role === 'CLASE_MEDIA') {
-        p.resources = cycleNum === 2 ? Math.floor(Math.random() * 21) + 20 : 50;
+        p.resources += cycleNum === 2 ? Math.floor(Math.random() * 21) + 20 : 50;
       } else if (p.role === 'ÁPORO') {
-        p.resources = 10;
+        p.resources += 10;
         if (cycleNum === 4 && p.dignity > 0) p.dignity = Math.max(0, p.dignity - 10);
       }
       p.survivalMet = false;
