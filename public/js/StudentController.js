@@ -141,6 +141,29 @@ export class StudentController {
         this.renderAssignedRequests(assignedRequests);
       } else {
         p.phase2Waiting.classList.remove('hidden');
+        
+        const role = this.appState.myRole;
+        if (role === 'ÉLITE' || role === 'CLASE_MEDIA') {
+          p.phase2Waiting.innerHTML = `
+            <h3 class="section-title">Fase 2: Esperando Resolución</h3>
+            <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.05); border: 1px solid var(--gold-wealth); border-radius: var(--radius-md);">
+              <h4 style="color: var(--gold-wealth); margin-bottom: 0.5rem;">No tienes peticiones asignadas...</h4>
+              <p style="color: var(--text-muted); font-size: 0.95rem;">
+                En este ciclo no te ha tocado revisar ninguna petición de ayuda, o bien ya no hay ciudadanos precarizados que la necesiten. Espera a que el resto de la sociedad tome sus decisiones.
+              </p>
+            </div>
+          `;
+        } else {
+          p.phase2Waiting.innerHTML = `
+            <h3 class="section-title">Fase 2: Esperando Solidaridad</h3>
+            <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.05); border: 1px solid var(--gold-wealth); border-radius: var(--radius-md);">
+              <h4 style="color: var(--gold-wealth); margin-bottom: 0.5rem;">Tu petición está en la mesa de los más privilegiados...</h4>
+              <p style="color: var(--text-muted); font-size: 0.95rem;">
+                La sociedad está deliberando. Dependiendo de si la Élite y la Clase Media optan por la <strong>indiferencia</strong>, la <strong>caridad</strong> o la <strong>justicia estructural</strong>, tu destino y dignidad cambiarán. ¿Se comprometerán con la hospitalidad cosmopolita que describe Adela Cortina?
+              </p>
+            </div>
+          `;
+        }
       }
     } else {
       p.phase1.classList.remove('hidden');
