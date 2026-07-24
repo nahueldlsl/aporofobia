@@ -59,7 +59,14 @@ class CycleManager {
     room.players.forEach(p => {
       if (p.role === 'ÉLITE') {
         const amt = cycleNum === 4 ? 150 : 100;
-        if (cycleNum <= 1) p.resources = amt; else p.resources += amt;
+        if (cycleNum <= 1) {
+          p.resources = amt;
+        } else if (cycleNum === 2 && Math.random() < 0.20) {
+          p.resources -= 50;
+          p.role = 'CLASE_MEDIA';
+        } else {
+          p.resources += amt;
+        }
       } else if (p.role === 'CLASE_MEDIA') {
         const amt = cycleNum === 2 ? Math.floor(Math.random() * 21) + 20 : 50;
         if (cycleNum <= 1) p.resources = amt; else p.resources += amt;
@@ -154,9 +161,12 @@ class CycleManager {
     } else if (room.metrics.giniIndex < 0.50 && room.metrics.hospitalityScore >= 50 && room.reglaRentaBasicaActiva) {
       outcomeType = 'Utopia_Cosmopolita';
       outcomeText = 'UTOPÍA COSMOPOLITA: Se ha logrado justicia estructural y hospitalidad plena a través de la Renta Básica.';
-    } else if (totalReqs === 0) {
+    } else if (totalReqs === 0 && room.metrics.invisibleCount === 0) {
       outcomeType = 'POBREZA_CERO';
-      outcomeText = 'ESTABILIDAD SOCIAL / POBREZA CERO: Las necesidades de todos están cubiertas. No hubo peticiones de ayuda en este ciclo.';
+      outcomeText = 'ESTABILIDAD SOCIAL / POBREZA CERO: Las necesidades de todos están cubiertas. No hubo peticiones de ayuda ni ciudadanos excluidos.';
+    } else if (totalReqs === 0 && room.metrics.invisibleCount > 0) {
+      outcomeType = 'SOCIEDAD_ROTA';
+      outcomeText = 'SILENCIO ESTRUCTURAL: No hubo peticiones de ayuda, pero la sociedad mantiene ciudadanos invisibilizados (0 Dignidad) marginados del sistema.';
     } else {
       if (aporophobiaRate >= 0.70) {
         outcomeType = 'DISTOPIA_APOROFOBICA';
