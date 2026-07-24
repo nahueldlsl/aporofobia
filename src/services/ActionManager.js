@@ -161,17 +161,7 @@ class ActionManager {
     return { success: true, req, needyPlayer, solver };
   }
 
-  static executeBotDecisions(room) {
-    const pendingReqs = room.requests.filter(r => r.status === 'PENDING');
-    pendingReqs.forEach(req => {
-      const solver = room.players.get(req.assignedToId);
-      if (solver && solver.isBot) {
-        const rand = Math.random();
-        const choice = rand < 0.3 ? 'A' : rand < 0.7 ? 'B' : 'C';
-        this.makeDecision(room, solver.id, req.id, choice);
-      }
-    });
-  }
+
 }
 
 module.exports = ActionManager;

@@ -193,7 +193,7 @@ io.on('connection', (socket) => {
   });
 
   // Final Debrief Request
-  socket.on('get_debrief', (callback) => {
+  socket.on('get_debrief', (data, callback) => {
     if (!socket.roomCode) return;
     const debrief = gameEngine.getDebriefData(socket.roomCode);
     if (typeof callback === 'function') callback(debrief);

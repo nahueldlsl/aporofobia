@@ -61,7 +61,6 @@ export class DOMManager {
       studentsGrid: document.getElementById('studentsGrid'),
       cortinaChapter: document.getElementById('teacherCortinaChapter'),
       cortinaQuote: document.getElementById('teacherCortinaQuote'),
-      btnAddBots: document.getElementById('btnAddBots'),
       btnMasterNext: document.getElementById('btnMasterNext'),
       btnOpenGuide: document.getElementById('btnOpenGuide'),
       btnCloseGuide: document.getElementById('btnCloseGuide'),

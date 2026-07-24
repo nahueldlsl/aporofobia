@@ -9,7 +9,6 @@ export class TeacherController {
 
   bindEvents() {
     const t = this.dom.teacher;
-    t.btnAddBots.addEventListener('click', () => this.socketClient.emit('add_bots', { count: 10 }));
     t.btnMasterNext.addEventListener('click', () => this.handleMasterNext());
     t.btnShowDebrief.addEventListener('click', () => this.handleShowDebrief());
     t.btnBackToTeacher.addEventListener('click', () => this.uiManager.showView('teacher'));

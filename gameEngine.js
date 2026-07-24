@@ -34,10 +34,7 @@ class GameEngineFacade {
     return null;
   }
 
-  addBots(roomCode, count = 10) {
-    const room = this.getRoom(roomCode);
-    if (room) RoomManager.addBots(room, count);
-  }
+
 
 
   startCycle(roomCode, cycleNum = 1) {

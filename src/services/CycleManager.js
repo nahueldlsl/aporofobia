@@ -99,15 +99,7 @@ class CycleManager {
     room.phase = 2;
     room.status = `CYCLE_${room.cycle}_PHASE_2`;
     room.timer = 300; // 5 minutes
-
-    for (const p of room.players.values()) {
-      if (p.isBot && p.role === 'ÁPORO' && !p.survivalMet) {
-        ActionManager.payBasicNeeds(room, p.id);
-      } else if (p.isBot && (p.role === 'ÉLITE' || p.role === 'CLASE_MEDIA')) {
-        p.resources -= 30;
-        p.survivalMet = true;
-      }
-    }
+    room.timer = 300; // 5 minutes
 
     const pendingRequests = room.requests.filter(r => r.status === 'PENDING');
     const surplusPlayers = Array.from(room.players.values()).filter(p => p.role === 'ÉLITE' || p.role === 'CLASE_MEDIA');
@@ -207,7 +199,7 @@ class CycleManager {
 
   static checkPhaseCompletion(room) {
     if (room.phase === 1) {
-      const humans = Array.from(room.players.values()).filter(p => !p.isBot);
+      const humans = Array.from(room.players.values());
       if (humans.length === 0) return false;
       return humans.every(p => {
         const hasReq = room.requests.some(r => r.fromId === p.id && r.cycle === room.cycle);
@@ -216,9 +208,9 @@ class CycleManager {
     } else if (room.phase === 2) {
       const assignedToHumans = room.requests.filter(r => {
         const solver = room.players.get(r.assignedToId);
-        return solver && !solver.isBot && r.cycle === room.cycle;
+        return solver && r.cycle === room.cycle;
       });
-      if (assignedToHumans.length === 0) return false; 
+      if (assignedToHumans.length === 0) return true; 
       return assignedToHumans.every(r => r.status === 'RESOLVED');
     }
     return false;
@@ -229,7 +221,6 @@ class CycleManager {
     if (room.phase === 1) {
       this.advanceToPhase2(room);
     } else if (room.phase === 2) {
-      ActionManager.executeBotDecisions(room);
       this.advanceToPhase3(room);
     } else if (room.phase === 3) {
       if (room.cycle < 5) {

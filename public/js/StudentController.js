@@ -13,6 +13,7 @@ export class StudentController {
 
   handlePaySurvival() {
     this.dom.student.btnPaySurvival.disabled = true;
+    this.dom.student.btnPaySurvival.classList.add('hidden');
     this.socketClient.emit('pay_basic_needs', null, (res) => {
       if (res && res.success) {
         if (res.neededHelp) {
@@ -30,6 +31,7 @@ export class StudentController {
         }
       } else {
         this.dom.student.btnPaySurvival.disabled = false;
+        this.dom.student.btnPaySurvival.classList.remove('hidden');
       }
     });
   }
@@ -102,12 +104,15 @@ export class StudentController {
 
     if (player.role === 'PENDING') {
       s.btnPaySurvival.disabled = true;
+      s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = '';
     } else if (player.survivalMet) {
       s.btnPaySurvival.disabled = true;
+      s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--emerald-hospitality);">✅ Necesidades básicas cubiertas para este ciclo.</span>`;
     } else {
       s.btnPaySurvival.disabled = false;
+      s.btnPaySurvival.classList.remove('hidden');
       s.survivalStatus.innerHTML = ''; 
 
       if (player.resources < cost) {
