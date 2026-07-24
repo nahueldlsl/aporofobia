@@ -196,7 +196,7 @@ btnAddBots.addEventListener('click', () => {
 
 btnMasterNext.addEventListener('click', () => {
   if (currentStatus === 'LOBBY') {
-    socket.emit('start_cycle_0');
+    socket.emit('start_cycle', { cycleNum: 1 });
   } else if (currentPhase === 1 || currentPhase === 2) {
     socket.emit('advance_phase');
   } else if (currentPhase === 3) {

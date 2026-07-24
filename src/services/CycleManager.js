@@ -3,30 +3,6 @@ const ActionManager = require('./ActionManager');
 const RoomManager = require('./RoomManager');
 
 class CycleManager {
-  static startCycle0(room) {
-    room.cycle = 0;
-    room.phase = 1;
-    room.timer = 120;
-    room.status = 'CYCLE_0_TUTORIAL';
-    room.requests = [];
-
-    room.players.forEach(p => {
-      p.role = 'CLASE_MEDIA';
-      p.resources = 50;
-      p.dignity = 100;
-      p.survivalMet = false;
-      p.isInvisible = false;
-      p.hasProtested = false;
-    });
-
-    room.cortinaQuote = {
-      chapter: 'Fase de Calibración / Tutorial',
-      quote: 'Esta ronda permite probar la interfaz sin afectar las métricas éticas finales de la clase.'
-    };
-    MetricsCalculator.updateMetrics(room);
-    return room;
-  }
-
   static startCycle(room, cycleNum = 1) {
 
     if (cycleNum === 5) {
@@ -163,10 +139,7 @@ class CycleManager {
 
     const hasForeigners = Array.from(room.players.values()).some(p => p.isForeigner);
 
-    if (room.cycle === 0) {
-      outcomeType = 'TUTORIAL_COMPLETADO';
-      outcomeText = 'CALIBRACIÓN COMPLETADA: Todos los ciudadanos sobrevivieron. El juego real está por comenzar.';
-    } else if (room.metrics.giniIndex >= 0.95) {
+    if (room.metrics.giniIndex >= 0.95) {
       outcomeType = 'Colapso_Aporofobico';
       outcomeText = 'DISTOPÍA: La desigualdad extrema ha colapsado el tejido social.';
       for (const p of room.players.values()) {

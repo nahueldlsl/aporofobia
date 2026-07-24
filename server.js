@@ -150,14 +150,6 @@ io.on('connection', (socket) => {
     broadcastGameState(socket.roomCode);
   });
 
-  // Cycle 0 Tutorial
-  socket.on('start_cycle_0', () => {
-    if (!socket.roomCode) return;
-    gameEngine.startCycle0(socket.roomCode);
-    startRoomTimer(socket.roomCode);
-    broadcastGameState(socket.roomCode);
-  });
-
   // Main Cycles
   socket.on('start_cycle', ({ cycleNum }) => {
     if (!socket.roomCode) return;
