@@ -151,6 +151,7 @@ btnCreateRoom.addEventListener('click', () => {
    ========================================================================== */
 
 btnPaySurvival.addEventListener('click', () => {
+  btnPaySurvival.disabled = true; // Prevents double click
   socket.emit('pay_basic_needs', (res) => {
     if (res && res.success) {
       if (res.neededHelp) {
@@ -159,24 +160,27 @@ btnPaySurvival.addEventListener('click', () => {
             ⚠️ Tus recursos no cubren el umbral. Has gastado todo y enviado una Petición Anónima de Acogida al grupo.
           </span>
         `;
-        btnPaySurvival.disabled = true;
       } else {
         survivalStatus.innerHTML = `
           <span style="color: var(--emerald-hospitality);">
             ✅ Has cubierto tus necesidades básicas del ciclo. Dignidad +5.
           </span>
         `;
-        btnPaySurvival.disabled = true;
       }
+    } else {
+      btnPaySurvival.disabled = false; // Re-enable if it failed
     }
   });
 });
 
 btnProtest.addEventListener('click', () => {
+  btnProtest.disabled = true; // Prevents double click
   socket.emit('trigger_protest', (res) => {
     if (res && res.success) {
+      btnProtest.textContent = 'En Huelga ✊';
       alert(`✊ Convocatoria a Huelga Social registrada (${res.protestsCount} convocatorias acumuladas).`);
     } else {
+      btnProtest.disabled = false; // Re-enable if it failed
       alert(res?.error || 'No se pudo registrar la convocatoria.');
     }
   });
