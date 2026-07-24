@@ -92,7 +92,7 @@ class CycleManager {
     } else if (cycleNum === 2) {
       room.cortinaQuote = { chapter: 'Crisis Económica y Aporofobia', quote: 'Cuando la economía aprieta, el miedo a caer en la pobreza empuja a las clases medias a rechazar a los más desfavorecidos.' };
     } else if (cycleNum === 3) {
-      room.cortinaQuote = { chapter: 'Capítulo 8: La Llegada del Extranjero', quote: 'Llegan a nuestras fronteras personas refugiadas e inmigrantes...' };
+      room.cortinaQuote = { chapter: 'Aporofobia Cotidiana', quote: 'No es un odio estridente, sino una indiferencia silenciosa. Nos acostumbramos a que haya descartados en las calles como si fueran parte del paisaje urbano.' };
     } else if (cycleNum === 4) {
       room.cortinaQuote = { chapter: 'Algoritmos y Arquitectura Hostil', quote: 'La tecnología y las ciudades se diseñan para invisibilizar al pobre, negándole el espacio público y el acceso al crédito.' };
     } else if (cycleNum === 5) {
