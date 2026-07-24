@@ -1,7 +1,9 @@
 module.exports = {
-  create(socketId, name, currentSize) {
+  create(socketId, name, currentSize, persistentId) {
     return {
-      id: socketId,
+      id: persistentId || socketId,
+      socketId: socketId,
+      connected: true,
       name: name || `Ciudadano #${currentSize + 1}`,
       role: 'PENDING',
       isForeigner: false,

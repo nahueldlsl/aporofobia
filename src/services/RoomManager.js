@@ -2,17 +2,23 @@ const PlayerFactory = require('../models/Player');
 const MetricsCalculator = require('./MetricsCalculator');
 
 class RoomManager {
-  static addPlayer(room, socketId, name, isTeacher = false) {
+  static addPlayer(room, socketId, name, isTeacher = false, persistentId = null) {
     if (isTeacher) {
       room.teacherSocketId = socketId;
       return { room, player: null, isTeacher: true };
     }
-    if (room.players.has(socketId)) {
-      return { room, player: room.players.get(socketId) };
+    
+    // Check if player reconnects
+    if (persistentId && room.players.has(persistentId)) {
+      const existingPlayer = room.players.get(persistentId);
+      existingPlayer.socketId = socketId;
+      existingPlayer.connected = true;
+      return { room, player: existingPlayer };
     }
 
-    const player = PlayerFactory.create(socketId, name, room.players.size);
-    room.players.set(socketId, player);
+    // New player
+    const player = PlayerFactory.create(socketId, name, room.players.size, persistentId);
+    room.players.set(player.id, player);
     MetricsCalculator.updateMetrics(room);
     return { room, player };
   }

@@ -19,10 +19,10 @@ class GameEngineFacade {
     return this.rooms.get(roomCode?.toUpperCase());
   }
 
-  addPlayer(roomCode, socketId, name, isTeacher = false) {
+  addPlayer(roomCode, socketId, name, isTeacher = false, playerId = null) {
     const room = this.getRoom(roomCode);
     if (!room) return { error: 'Sala no encontrada' };
-    return RoomManager.addPlayer(room, socketId, name, isTeacher);
+    return RoomManager.addPlayer(room, socketId, name, isTeacher, playerId);
   }
 
   removePlayer(socketId) {

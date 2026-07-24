@@ -39,8 +39,14 @@ class App {
       const name = l.studentName.value.trim() || 'Estudiante Anónimo';
       const code = l.studentRoom.value.trim().toUpperCase();
       if (!code) return alert('Por favor ingresa un código de sala válido.');
+      
+      let playerId = sessionStorage.getItem('aporofobia_player_id');
+      if (!playerId) {
+        playerId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        sessionStorage.setItem('aporofobia_player_id', playerId);
+      }
 
-      this.socketClient.emit('join_room', { roomCode: code, name, isTeacher: false }, (res) => {
+      this.socketClient.emit('join_room', { roomCode: code, name, isTeacher: false, playerId }, (res) => {
         if (res.success) {
           this.state.currentRoomCode = res.roomCode;
           this.state.isTeacher = false;
@@ -52,7 +58,13 @@ class App {
 
     l.btnCreateRoom.addEventListener('click', () => {
       const code = l.teacherRoom.value.trim().toUpperCase();
-      const payload = code ? { roomCode: code, isTeacher: true } : { teacherName: 'Profesor' };
+      let playerId = sessionStorage.getItem('aporofobia_player_id');
+      if (!playerId) {
+        playerId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        sessionStorage.setItem('aporofobia_player_id', playerId);
+      }
+
+      const payload = code ? { roomCode: code, isTeacher: true, playerId } : { teacherName: 'Profesor', playerId };
       const event = code ? 'join_room' : 'create_room';
 
       this.socketClient.emit(event, payload, (res) => {

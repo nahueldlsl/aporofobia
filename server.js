@@ -61,7 +61,7 @@ function broadcastGameState(roomCode) {
     const assignedRequests = room.requests.filter(r => r.assignedToId === player.id && r.status === 'PENDING');
     const myRequest = room.requests.find(r => r.fromId === player.id && r.cycle === room.cycle);
 
-    io.to(player.id).emit('player_private_update', {
+    io.to(player.socketId).emit('player_private_update', {
       player,
       assignedRequests,
       myRequest
@@ -120,9 +120,9 @@ io.on('connection', (socket) => {
     broadcastGameState(roomCode);
   });
 
-  socket.on('join_room', ({ roomCode, name, isTeacher }, callback) => {
+  socket.on('join_room', ({ roomCode, name, isTeacher, playerId }, callback) => {
     const cleanCode = roomCode?.trim().toUpperCase();
-    const result = gameEngine.addPlayer(cleanCode, socket.id, name, isTeacher);
+    const result = gameEngine.addPlayer(cleanCode, socket.id, name, isTeacher, playerId);
 
     if (result.error) {
       if (typeof callback === 'function') callback({ success: false, error: result.error });
@@ -131,6 +131,7 @@ io.on('connection', (socket) => {
 
     socket.join(cleanCode);
     socket.roomCode = cleanCode;
+    socket.playerId = result.player ? result.player.id : null;
 
     if (typeof callback === 'function') {
       callback({
@@ -169,32 +170,32 @@ io.on('connection', (socket) => {
 
   // Áporo Collective Strike
   socket.on('trigger_protest', (data, callback) => {
-    if (!socket.roomCode) return;
-    const res = gameEngine.triggerProtest(socket.roomCode, socket.id);
+    if (!socket.roomCode || !socket.playerId) return;
+    const res = gameEngine.triggerProtest(socket.roomCode, socket.playerId);
     if (typeof callback === 'function') callback(res);
     broadcastGameState(socket.roomCode);
     checkAndAutoAdvance(socket.roomCode);
   });
 
   socket.on('skip_protest', (data, callback) => {
-    if (!socket.roomCode) return;
-    const res = gameEngine.skipProtest(socket.roomCode, socket.id);
+    if (!socket.roomCode || !socket.playerId) return;
+    const res = gameEngine.skipProtest(socket.roomCode, socket.playerId);
     if (typeof callback === 'function') callback(res);
     broadcastGameState(socket.roomCode);
     checkAndAutoAdvance(socket.roomCode);
   });
 
   socket.on('pay_basic_needs', (data, callback) => {
-    if (!socket.roomCode) return;
-    const res = gameEngine.payBasicNeeds(socket.roomCode, socket.id);
+    if (!socket.roomCode || !socket.playerId) return;
+    const res = gameEngine.payBasicNeeds(socket.roomCode, socket.playerId);
     if (typeof callback === 'function') callback(res);
     broadcastGameState(socket.roomCode);
     checkAndAutoAdvance(socket.roomCode);
   });
 
   socket.on('make_decision', ({ requestId, decision }, callback) => {
-    if (!socket.roomCode) return;
-    const res = gameEngine.makeDecision(socket.roomCode, socket.id, requestId, decision);
+    if (!socket.roomCode || !socket.playerId) return;
+    const res = gameEngine.makeDecision(socket.roomCode, socket.playerId, requestId, decision);
     if (typeof callback === 'function') callback(res);
     broadcastGameState(socket.roomCode);
     checkAndAutoAdvance(socket.roomCode);
@@ -208,8 +209,13 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    const res = gameEngine.removePlayer(socket.id);
-    if (res) broadcastGameState(res.roomCode);
+    if (socket.roomCode && socket.playerId) {
+      const room = gameEngine.getRoom(socket.roomCode);
+      if (room && room.players.has(socket.playerId)) {
+        room.players.get(socket.playerId).connected = false;
+        broadcastGameState(socket.roomCode);
+      }
+    }
   });
 });
 

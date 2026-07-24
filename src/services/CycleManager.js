@@ -115,7 +115,7 @@ class CycleManager {
     room.timer = 300; // 5 minutes
 
     const pendingRequests = room.requests.filter(r => r.status === 'PENDING' && r.cycle === room.cycle);
-    const surplusPlayers = Array.from(room.players.values()).filter(p => p.role === 'ÉLITE' || p.role === 'CLASE_MEDIA');
+    const surplusPlayers = Array.from(room.players.values()).filter(p => (p.role === 'ÉLITE' || p.role === 'CLASE_MEDIA') && p.connected !== false);
 
     if (surplusPlayers.length > 0) {
       pendingRequests.forEach((req, idx) => {
@@ -213,7 +213,7 @@ class CycleManager {
 
   static checkPhaseCompletion(room) {
     if (room.phase === 1) {
-      const humans = Array.from(room.players.values());
+      const humans = Array.from(room.players.values()).filter(p => p.connected !== false);
       if (humans.length === 0) return false;
       return humans.every(p => {
         const hasReq = room.requests.some(r => r.fromId === p.id && r.cycle === room.cycle);
@@ -225,7 +225,7 @@ class CycleManager {
     } else if (room.phase === 2) {
       const assignedToHumans = room.requests.filter(r => {
         const solver = room.players.get(r.assignedToId);
-        return solver && r.cycle === room.cycle;
+        return solver && r.cycle === room.cycle && solver.connected !== false;
       });
       if (assignedToHumans.length === 0) return true; 
       return assignedToHumans.every(r => r.status === 'RESOLVED');
