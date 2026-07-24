@@ -19,6 +19,13 @@ class ActionManager {
       player.survivalMet = false;
       player.hasRequestedHelp = true;
 
+      // Downward Mobility: If a non-poor player goes bankrupt, they immediately fall into poverty
+      const wasPrivileged = (player.role === 'CLASE_MEDIA' || player.role === 'ÉLITE');
+      if (wasPrivileged) {
+        player.dignity = Math.max(0, player.dignity - 20); // Trauma of falling
+        player.role = 'ÁPORO';
+      }
+
       let existingReq = room.requests.find(r => r.fromId === socketId && r.cycle === room.cycle);
       if (!existingReq) {
         const botMessage = player.isForeigner
@@ -39,8 +46,10 @@ class ActionManager {
         };
         room.requests.push(existingReq);
       }
+      
+      const demoted = wasPrivileged;
       MetricsCalculator.updateMetrics(room);
-      return { success: true, player, neededHelp: true, request: existingReq };
+      return { success: true, player, neededHelp: true, request: existingReq, demoted };
     }
   }
 

@@ -18,6 +18,9 @@ export class StudentController {
     this.socketClient.emit('pay_basic_needs', null, (res) => {
       if (res && res.success) {
         if (res.neededHelp) {
+          if (res.demoted) {
+            alert('🚨 QUIEBRA ECONÓMICA: Tus recursos se han agotado. Has perdido tu estatus y caído en la precariedad (-20 Dignidad). Ahora eres un Nuevo Pobre (Áporo) y tienes derecho a convocar una huelga.');
+          }
           this.dom.student.survivalStatus.innerHTML = `
             <span style="color: var(--red-dignity);">
               ⚠️ Tus recursos no cubren el umbral. Has gastado todo y enviado una Petición Anónima de Acogida al grupo.
