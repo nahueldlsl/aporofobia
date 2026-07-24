@@ -28,10 +28,7 @@ class CycleManager {
   }
 
   static startCycle(room, cycleNum = 1) {
-    if (cycleNum === 3) {
-      const hasBots = Array.from(room.players.values()).some(p => p.isBot);
-      if (!hasBots) RoomManager.addBots(room, 10);
-    }
+
     if (cycleNum === 5) {
       room.reglaRentaBasicaActiva = true;
     }
@@ -53,8 +50,11 @@ class CycleManager {
     if (cycleNum === 1) {
       const eliteCount = Math.max(1, Math.round(total * 0.10));
       const mediaCount = Math.max(1, Math.round(total * 0.30));
+      const foreignerCount = Math.max(1, Math.round(total * 0.30));
+      
       const shuffled = [...playerList].sort(() => Math.random() - 0.5);
-
+      
+      // Asignar roles básicos
       shuffled.forEach((p, index) => {
         if (index < eliteCount) {
           p.role = 'ÉLITE';
@@ -69,13 +69,13 @@ class CycleManager {
         p.isForeigner = false;
         p.isInvisible = false;
       });
-    } else if (cycleNum === 3) {
-      room.players.forEach(p => {
-        if (p.isBot && (!p.role || p.role === 'ÁPORO')) {
-          p.role = 'ÁPORO';
-          p.dignity = 30; 
+
+      // Asignar extranjeros (solo a Clase Media o Áporos, NUNCA a Élite)
+      const nonElitePlayers = shuffled.filter(p => p.role !== 'ÉLITE').sort(() => Math.random() - 0.5);
+      nonElitePlayers.forEach((p, index) => {
+        if (index < foreignerCount) {
           p.isForeigner = true;
-          p.isInvisible = false;
+          p.dignity = Math.max(0, p.dignity - 15);
         }
       });
     }
@@ -84,7 +84,7 @@ class CycleManager {
       if (p.role === 'ÉLITE') {
         p.resources = cycleNum === 4 ? 150 : 100;
       } else if (p.role === 'CLASE_MEDIA') {
-        p.resources = cycleNum === 2 ? 40 : 50;
+        p.resources = cycleNum === 2 ? Math.floor(Math.random() * 21) + 20 : 50;
       } else if (p.role === 'ÁPORO') {
         p.resources = 10;
         if (cycleNum === 4 && p.dignity > 0) p.dignity = Math.max(0, p.dignity - 10);
@@ -159,7 +159,12 @@ class CycleManager {
     let outcomeText = '';
     let outcomeType = '';
 
-    if (room.metrics.giniIndex >= 0.95) {
+    const hasForeigners = Array.from(room.players.values()).some(p => p.isForeigner);
+
+    if (room.cycle === 0) {
+      outcomeType = 'TUTORIAL_COMPLETADO';
+      outcomeText = 'CALIBRACIÓN COMPLETADA: Todos los ciudadanos sobrevivieron. El juego real está por comenzar.';
+    } else if (room.metrics.giniIndex >= 0.95) {
       outcomeType = 'Colapso_Aporofobico';
       outcomeText = 'DISTOPÍA: La desigualdad extrema ha colapsado el tejido social.';
       for (const p of room.players.values()) {
@@ -168,15 +173,15 @@ class CycleManager {
           p.dignity = 0;
         }
       }
-    } else if (room.metrics.giniIndex < 0.50 && room.metrics.hospitalityScore < 50) {
+    } else if (room.metrics.giniIndex < 0.50 && room.metrics.hospitalityScore < 50 && hasForeigners) {
       outcomeType = 'Trampa_Nacionalista';
       outcomeText = 'TRAMPA NACIONALISTA: Igualdad interna asegurada, pero mediante la exclusión absoluta del extranjero.';
     } else if (room.metrics.giniIndex < 0.50 && room.metrics.hospitalityScore >= 50 && room.reglaRentaBasicaActiva) {
       outcomeType = 'Utopia_Cosmopolita';
       outcomeText = 'UTOPÍA COSMOPOLITA: Se ha logrado justicia estructural y hospitalidad plena a través de la Renta Básica.';
-      for (const p of room.players.values()) {
-        if (p.nextRole) { p.role = p.nextRole; delete p.nextRole; }
-      }
+    } else if (totalReqs === 0) {
+      outcomeType = 'POBREZA_CERO';
+      outcomeText = 'ESTABILIDAD SOCIAL / POBREZA CERO: Las necesidades de todos están cubiertas. No hubo peticiones de ayuda en este ciclo.';
     } else {
       if (aporophobiaRate >= 0.70) {
         outcomeType = 'DISTOPIA_APOROFOBICA';
@@ -187,12 +192,17 @@ class CycleManager {
       } else if (hospitalityRate >= 0.51) {
         outcomeType = 'AVANCE_COSMOPOLITA';
         outcomeText = 'AVANCE COSMOPOLITA ALCANZADO: ¡La mayoría de las decisiones apoyaron la Justicia Estratégica (C)!';
-        for (const p of room.players.values()) {
-          if (p.nextRole) { p.role = p.nextRole; delete p.nextRole; }
-        }
       } else {
         outcomeType = 'ESTANCAMIENTO';
-        outcomeText = 'ESTANCAMIENTO SOCIAL: Se brindó caridad mínima, pero la estructura de desigualdad se mantiene intacta.';
+        outcomeText = 'ESTANCAMIENTO SOCIAL: Se brindó caridad mínima o la sociedad estuvo dividida. La estructura de desigualdad se mantiene.';
+      }
+    }
+
+    // Apply all individual role changes (upward or downward mobility) globally
+    for (const p of room.players.values()) {
+      if (p.nextRole) {
+        p.role = p.nextRole;
+        delete p.nextRole;
       }
     }
 

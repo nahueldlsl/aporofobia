@@ -26,22 +26,7 @@ class RoomManager {
     return false;
   }
 
-  static addBots(room, count = 10) {
-    const names = [
-      'Amina (Refugiada)', 'Mateo', 'Lucía', 'Tariq (Refugiado)', 'Elena', 
-      'Omar (Refugiado)', 'Sofia', 'Yusuf (Refugiado)', 'Carlos', 'Zainab (Refugiada)',
-      'Diego', 'Nia (Refugiada)', 'Hugo', 'Fatima (Refugiada)', 'Gabriel'
-    ];
 
-    for (let i = 0; i < count; i++) {
-      const botId = `bot_${Date.now()}_${i}`;
-      const botName = names[i % names.length];
-      const isForeigner = botName.includes('Refugiad');
-      const bot = PlayerFactory.createBot(botId, botName, isForeigner);
-      room.players.set(botId, bot);
-    }
-    MetricsCalculator.updateMetrics(room);
-  }
 }
 
 module.exports = RoomManager;

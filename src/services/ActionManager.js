@@ -127,6 +127,11 @@ class ActionManager {
       if (needyPlayer) {
         needyPlayer.dignity = Math.max(0, needyPlayer.dignity - 25);
         if (needyPlayer.dignity <= 0) needyPlayer.isInvisible = true;
+        
+        // Downward mobility: Middle class falls into poverty if rejected
+        if (needyPlayer.role === 'CLASE_MEDIA') {
+          needyPlayer.nextRole = 'ÁPORO';
+        }
       }
       room.metrics.optionACount++;
       if (req.isForeigner) room.metrics.foreignerHelpStats.foreignerTotal++;

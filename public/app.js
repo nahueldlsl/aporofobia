@@ -388,9 +388,7 @@ socket.on('player_private_update', ({ player, assignedRequests, myRequest }) => 
     survivalStatus.innerHTML = `<span style="color: var(--emerald-hospitality);">✅ Necesidades básicas cubiertas para este ciclo.</span>`;
   } else {
     btnPaySurvival.disabled = false;
-    if (survivalStatus.innerHTML.includes('✅')) {
-       survivalStatus.innerHTML = '';
-    }
+    survivalStatus.innerHTML = ''; // Limpiar advertencias de ciclos anteriores
 
     const survivalDescElement = document.getElementById('survivalDescriptionText');
     if (player.role === 'ÁPORO') {
@@ -478,8 +476,8 @@ function renderAssignedRequests(requests) {
     const canAffordB = myPlayerState && myPlayerState.resources >= 10;
     const canAffordC = myPlayerState && myPlayerState.resources >= 15;
 
-    const attrB = !canAffordB ? 'disabled style="opacity: 0.5; filter: grayscale(100%); cursor: not-allowed;"' : '';
-    const attrC = !canAffordC ? 'disabled style="opacity: 0.5; filter: grayscale(100%); cursor: not-allowed;"' : '';
+    const attrB = !canAffordB ? 'style="opacity: 0.5; filter: grayscale(100%);"' : '';
+    const attrC = !canAffordC ? 'style="opacity: 0.5; filter: grayscale(100%);"' : '';
 
     const tagB = !canAffordB ? '⚠️ FONDOS INSUFICIENTES - Opción B' : 'Opción B — Empatía Cobarde / Caridad';
     const tagC = !canAffordC ? '⚠️ FONDOS INSUFICIENTES - Opción C' : 'Opción C — Compromiso Ético / Justicia Cosmopolita';
