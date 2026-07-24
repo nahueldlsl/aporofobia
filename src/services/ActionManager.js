@@ -17,6 +17,7 @@ class ActionManager {
       const deficit = SURVIVAL_COST - paid;
       player.resources = 0;
       player.survivalMet = false;
+      player.hasRequestedHelp = true;
 
       let existingReq = room.requests.find(r => r.fromId === socketId && r.cycle === room.cycle);
       if (!existingReq) {

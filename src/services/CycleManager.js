@@ -75,6 +75,7 @@ class CycleManager {
         if (cycleNum === 4 && p.dignity > 0) p.dignity = Math.max(0, p.dignity - 10);
       }
       p.survivalMet = false;
+      p.hasRequestedHelp = false;
       p.hasProtested = false;
       p.isInvisible = p.dignity <= 0;
     });

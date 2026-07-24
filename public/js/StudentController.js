@@ -110,6 +110,10 @@ export class StudentController {
       s.btnPaySurvival.disabled = true;
       s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--emerald-hospitality);">✅ Necesidades básicas cubiertas para este ciclo.</span>`;
+    } else if (player.hasRequestedHelp) {
+      s.btnPaySurvival.disabled = true;
+      s.btnPaySurvival.classList.add('hidden');
+      s.survivalStatus.innerHTML = `<span style="color: var(--red-dignity);">⚠️ Tus recursos no cubrieron el umbral. Has gastado todo y enviado una Petición Anónima. Espera ayuda.</span>`;
     } else {
       s.btnPaySurvival.disabled = false;
       s.btnPaySurvival.classList.remove('hidden');
