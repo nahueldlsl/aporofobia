@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto Cosmópolis: El Umbral de la Cordialidad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Navigation Header -->
+    <header class="app-header">
+      <div class="brand-title">
+        <span>🏛️ PROYECTO COSMÓPOLIS</span>
+        <span class="brand-badge">Adela Cortina</span>
+      </div>
+      <div id="headerTimer" class="timer-badge hidden">
+        <span>⏳</span>
+        <span id="timerText">05:00</span>
+      </div>
+    </header>
+
+    <!-- LANDING & ROLE SELECTION -->
+    <main id="viewLanding" class="landing-view">
+      <h1 class="hero-title">El Umbral de la Cordialidad</h1>
+      <p class="hero-subtitle">
+        Una simulación social multijugador basada en la obra <em>“Aporofobia, el rechazo al pobre”</em> de Adela Cortina.
+      </p>
+
+      <div class="lobby-cards-grid">
+        <!-- Student Option -->
+        <div class="role-card-option">
+          <div class="role-icon">👤</div>
+          <h3>Unirse como Ciudadano (Estudiante)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+            Ingresa a la sesión de tu clase para recibir tu rol a ciegas y tomar decisiones éticas.
+          </p>
+          <div class="form-group">
+            <label for="studentName">Tu Nombre / Alias</label>
+            <input type="text" id="studentName" class="input-field" placeholder="Ej. Camila S.">
+          </div>
+          <div class="form-group">
+            <label for="studentRoomCode">Código de Sala</label>
+            <input type="text" id="studentRoomCode" class="input-field" style="text-transform: uppercase;" placeholder="Ej. COSMO1">
+          </div>
+          <button id="btnJoinStudent" class="btn-primary">Entrar a la Sala</button>
+        </div>
+
+        <!-- Teacher Option -->
+        <div class="role-card-option">
+          <div class="role-icon">📺</div>
+          <h3>Pizarra Global (Profesor)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+            Proyecta los marcadores macro de desigualdad (Gini Index, Tasa Cosmopolita e Invisibles) en tiempo real.
+          </p>
+          <div class="form-group">
+            <label for="teacherRoomCode">Código de Sala (Opcional)</label>
+            <input type="text" id="teacherRoomCode" class="input-field" style="text-transform: uppercase;" placeholder="Crear nueva o unirse">
+          </div>
+          <button id="btnCreateRoom" class="btn-primary btn-emerald" style="margin-top: 2.1rem;">Iniciar Pizarra de Clase</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- STUDENT DASHBOARD VIEW -->
+    <main id="viewStudent" class="student-dashboard hidden">
+      <!-- Sidebar Profile & Wallet -->
+      <aside class="profile-card">
+        <div id="studentRoleBadge" class="role-pill PENDING">ESPERANDO ASIGNACIÓN...</div>
+        <h2 id="displayStudentName" class="font-display">Estudiante</h2>
+        <p id="roleDescription" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          La partida aún no ha comenzado. El docente iniciará la simulación y se te asignará un rol en breve.
+        </p>
+
+        <div class="meter-box">
+          <div class="meter-header">
+            <span>Puntos de Recursos</span>
+            <strong id="valResources">10 Pts</strong>
+          </div>
+          <div class="meter-bar-bg">
+            <div id="barResources" class="meter-bar-fill fill-gold" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <div class="meter-box">
+          <div class="meter-header">
+            <span>Puntos de Dignidad</span>
+            <strong id="valDignity">30/100</strong>
+          </div>
+          <div class="meter-bar-bg">
+            <div id="barDignity" class="meter-bar-fill fill-red" style="width: 30%;"></div>
+          </div>
+        </div>
+
+        <div id="foreignBadgeContainer" class="hidden" style="margin-top: 1.25rem; padding: 0.75rem; background: rgba(6,182,212,0.1); border: 1px solid var(--cyan-media); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--cyan-media);">
+          🌐 Estado: Refugiado / Extranjero (Asignación Cap. 8)
+        </div>
+
+        <div id="studentObjectiveBox" style="margin-top: 1.25rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--gold-wealth); border-radius: var(--radius-sm); color: var(--text-main); font-size: 0.9rem;">
+          <strong style="color: var(--gold-wealth); display: block; margin-bottom: 0.5rem;">🎯 Tu Objetivo Global:</strong>
+          <span id="studentObjectiveText">Esperando asignación de rol...</span>
+        </div>
+      </aside>
+
+      <!-- Main Interactive Action Panel -->
+      <section class="action-panel">
+        <!-- Cortina Banner -->
+        <div id="studentCortinaBanner" class="cortina-banner">
+          <div id="studentCortinaChapter" class="cortina-chapter">Capítulo 7: Erradicar la Pobreza</div>
+          <div id="studentCortinaQuote" class="cortina-quote">
+            «La pobreza no es un fallo individual, sino la asignación desigual de las estructuras sociales.»
+          </div>
+        </div>
+
+        <!-- Lobby / Waiting Phase -->
+        <div id="studentLobbyPhase" class="phase-container hidden">
+          <h3 class="section-title">Sala de Espera</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+            Has ingresado exitosamente a la simulación. Por favor, espera a que el docente inicie el juego desde la Pizarra Global.
+          </p>
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md); text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+            <div style="color: var(--text-main); font-weight: 600;">Esperando al docente...</div>
+          </div>
+        </div>
+
+        <!-- Phase 1: Survival & Request -->
+        <div id="studentPhase1" class="phase-container">
+          <h3 class="section-title">Fase 1: Asignación y Vida</h3>
+          <p id="survivalDescriptionText" style="color: var(--text-muted); margin-bottom: 1rem;">
+            Sobrevivir este ciclo tiene un costo. Gastarás recursos para cubrir comida y techo. Si hay crisis, costará más caro.
+          </p>
+          <div id="phase1Actions">
+            <button id="btnPaySurvival" class="btn-primary">Cubrir Necesidades Básicas</button>
+            <button id="btnProtest" class="btn-primary btn-protest hidden">✊ Convocar Huelga / Asamblea Social</button>
+          </div>
+          <div id="survivalStatus" style="margin-top: 1rem; font-weight: 600;"></div>
+        </div>
+
+        <!-- Phase 2: Decision Threshold -->
+        <div id="studentPhase2" class="phase-container hidden">
+          <div id="phase2DecisionView">
+            <h3 class="section-title">Fase 2: El Umbral de la Decisión</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+              Has recibido una petición anónima de acogida de un conciudadano precarizado. Tu decisión afectará su dignidad y el Índice de Desigualdad (Gini) de la clase.
+            </p>
+            <div id="requestContainer" class="decision-card-container">
+              <!-- Requests injected dynamically -->
+            </div>
+          </div>
+
+          <div id="phase2WaitingView" class="hidden">
+            <h3 class="section-title">Fase 2: Esperando Solidaridad</h3>
+            <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.05); border: 1px solid var(--gold-wealth); border-radius: var(--radius-md);">
+              <h4 style="color: var(--gold-wealth); margin-bottom: 0.5rem;">Tu petición está en la mesa de los más privilegiados...</h4>
+              <p style="color: var(--text-muted); font-size: 0.95rem;">
+                La sociedad está deliberando. Dependiendo de si la Élite y la Clase Media optan por la <strong>indiferencia</strong>, la <strong>caridad</strong> o la <strong>justicia estructural</strong>, tu destino y dignidad cambiarán. ¿Se comprometerán con la hospitalidad cosmopolita que describe Adela Cortina?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3: Cycle Resolution -->
+        <div id="studentPhase3" class="phase-container hidden">
+          <h3 class="section-title">Fase 3: Resolución del Ciclo</h3>
+          <div id="resolutionBox" style="padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <h4 id="resolutionTitle" style="font-size: 1.2rem; margin-bottom: 0.5rem;">Procesando resultados...</h4>
+            <p id="resolutionDesc" style="color: var(--text-muted);"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- TEACHER / CLASSROOM BOARD VIEW (PIZARRA GLOBAL) -->
+    <main id="viewTeacher" class="teacher-dashboard hidden">
+      <!-- Special Alert Banner (Social Revolt / Cortina Diagnostic) -->
+      <div id="revoltBanner" class="revolt-banner hidden">
+        <h4 id="revoltTitle" style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem;">🔥 ALERTA SISTÉMICA</h4>
+        <p id="revoltMessage" style="font-size: 0.95rem;"></p>
+      </div>
+
+      <!-- Teleprompter / Asistente del Profesor -->
+      <div id="teacherTeleprompter" class="debrief-card" style="margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.05); border: 1px solid var(--emerald-hospitality);">
+        <h3 style="color: var(--emerald-hospitality); margin-bottom: 0.5rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🤖</span> ASISTENTE DEL PROFESOR
+        </h3>
+        <p id="teleprompterInstruction" style="font-size: 1.1rem; color: var(--text-main); font-weight: 500;">
+          Bienvenido al panel. Cuando estés listo, pulsa "Ciclo 0 (Tutorial)" abajo para enseñarles a los alumnos cómo jugar.
+        </p>
+      </div>
+
+      <!-- Cortina Global Quote Banner -->
+      <div id="teacherCortinaBanner" class="cortina-banner">
+        <div id="teacherCortinaChapter" class="cortina-chapter">Adela Cortina — Aporofobia: El rechazo al pobre</div>
+        <div id="teacherCortinaQuote" class="cortina-quote">
+          «Una sociedad no puede llamarse justa si permite que la suerte de la asignación inicial condene a la invisibilidad al precarizado.»
+        </div>
+      </div>
+
+      <!-- Macro Indicators Row -->
+      <div class="metrics-hero-row">
+        <!-- Gini Metric Card -->
+        <div class="metric-card">
+          <div class="metric-label">Gini Class Index</div>
+          <div id="valGini" class="metric-value" style="color: var(--gold-wealth);">0.000</div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">0.0 = Igualdad | Gini > 0.60 = Revuelta</div>
+        </div>
+
+        <!-- Cosmopolitan Host Rate Card -->
+        <div class="metric-card">
+          <div class="metric-label">Cosmopolitan Host Rate</div>
+          <div id="valHostRate" class="metric-value" style="color: var(--emerald-hospitality);">100%</div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">Precarizados acogidos (Opción C)</div>
+        </div>
+
+        <!-- Invisible Count Card -->
+        <div class="metric-card">
+          <div class="metric-label">The Invisible Count</div>
+          <div id="valInvisible" class="metric-value" style="color: var(--red-dignity);">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">Ciudadanos invisibilizados</div>
+        </div>
+
+        <!-- Elite Inactivity Card -->
+        <div class="metric-card">
+          <div class="metric-label">Inactividad de Élite</div>
+          <div id="valEliteInactive" class="metric-value" style="color: var(--cyan-media);">0%</div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">Élites sin donar ayuda</div>
+        </div>
+      </div>
+
+      <!-- Class Social Map Grid -->
+      <section class="class-map-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 class="section-title" style="margin-bottom: 0;">👥 Mapa Social de la Clase (Tiempo Real)</h3>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Código de Sala: <strong id="displayRoomCode" style="color: var(--gold-wealth); font-family: var(--font-display);">COSMO1</strong>
+          </div>
+        </div>
+
+        <div id="studentsGrid" class="students-grid">
+          <!-- Live student nodes injected here -->
+        </div>
+      </section>
+
+      <!-- Teacher Controls Dock -->
+      <footer class="teacher-controls-dock" style="justify-content: space-between;">
+        <!-- Botón Maestro Inteligente -->
+        <div style="flex: 1; max-width: 400px;">
+          <button id="btnMasterNext" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+            ▶ Iniciar Juego
+          </button>
+        </div>
+
+        <!-- Botones Secundarios (Pequeños) -->
+        <div style="display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;">
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="btnOpenGuide" class="btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); width: auto;">📖 Guía</button>
+            <button id="btnAddBots" class="btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); width: auto;">+ 10 Bots</button>
+          </div>
+          <button id="btnShowDebrief" class="btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; background: var(--bg-card-hover); border: 1px solid var(--border-subtle); color: var(--text-muted); width: auto;">📊 Ver Debriefing</button>
+        </div>
+      </footer>
+    </main>
+
+    <!-- DEBRIEFING ACADÉMICO VIEW -->
+    <main id="viewDebrief" class="debrief-view hidden">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <h1 class="hero-title">Debriefing Pedagógico y Diagnóstico Ético</h1>
+        <p class="hero-subtitle">Resultados empíricos de la simulación para el debate en aula (Adela Cortina).</p>
+      </div>
+
+      <div class="debrief-grid">
+        <!-- Chart 1: Gini Evolution Curve -->
+        <div class="debrief-card">
+          <h3 class="section-title">📉 Evolución del Índice Gini (Desigualdad)</h3>
+          <canvas id="giniChartCanvas" width="500" height="260" style="width: 100%; height: 260px;"></canvas>
+        </div>
+
+        <!-- Chart 2: Local vs Foreigner Hospitality Comparison -->
+        <div class="debrief-card">
+          <h3 class="section-title">🌐 Tasa de Justicia (Opción C): Nacionales vs Extranjeros</h3>
+          <canvas id="biasChartCanvas" width="500" height="260" style="width: 100%; height: 260px;"></canvas>
+        </div>
+      </div>
+
+      <!-- Cortina Final Conclusion Box -->
+      <div id="debriefDiagnosisBox" class="debrief-card" style="border-color: var(--gold-wealth);">
+        <h3 class="section-title" style="color: var(--gold-wealth);">🏛️ Diagnóstico Ético Final: Adela Cortina</h3>
+        <p id="debriefDiagnosisText" style="font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1rem;"></p>
+        <div id="debriefStatsSummary" style="font-size: 0.95rem; color: var(--text-muted);"></div>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="btnBackToTeacher" class="btn-primary" style="max-width: 300px; margin: 0 auto;">⬅️ Volver a la Pizarra</button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- TEACHER GUIDE MODAL -->
+  <div id="teacherGuideModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="hero-title" style="font-size: 1.75rem; margin-bottom: 0;">📖 Guía de Exposición del Profesor</h2>
+        <button id="btnCloseGuide" style="background: none; border: none; color: var(--text-muted); font-size: 2rem; cursor: pointer;">&times;</button>
+      </div>
+      <div style="max-height: 60vh; overflow-y: auto; padding-right: 1rem;">
+        <h3 style="color: var(--gold-wealth); margin-bottom: 0.5rem;">Objetivo de la Simulación</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Demostrar empíricamente las teorías de Adela Cortina. Los alumnos experimentarán cómo la pobreza es un problema estructural (no individual), y la diferencia entre dar "caridad" para tranquilizar la conciencia (Opción B) vs. aplicar "justicia social" (Opción C).</p>
+
+        <h3 style="color: var(--cyan-media); margin-bottom: 0.5rem;">Guión de la Clase: Paso a Paso</h3>
+        <ol style="color: var(--text-muted); margin-left: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <li><strong>Preparación:</strong> Proyecta la Pizarra Global. Pide a tus compañeros que entren desde sus celulares a la web e ingresen el "Código de Sala". Si son pocos en clase, presiona "+ 10 Bots".</li>
+          <li><strong>Ciclo 1 - La Lotería de la Vida (Fase 1):</strong> Inicia el Ciclo 1. Diles que intenten sobrevivir. Explícales que el 60% ha nacido pobre por azar estructural y no tendrán recursos. Deberán pedir ayuda anónima (el sistema lo hace al intentar pagar).</li>
+          <li><strong>Ciclo 1 - El Umbral (Fase 2):</strong> Pulsa "Avanzar Fase". Ahora la Élite recibe las peticiones de los pobres. Explícales que deben elegir A (Rechazo), B (Caridad) o C (Justicia). <em>Importante: En sus celulares, los pobres estarán viendo una pantalla de tensión esperando ser ayudados.</em></li>
+          <li><strong>Ciclo 1 - Resolución (Fase 3):</strong> Pulsa "Avanzar Fase" otra vez. El servidor calcula los resultados. Léelos en voz alta: si hubo más del 70% de rechazo, los pobres se vuelven "Invisibles" (oscuridad).</li>
+          <li><strong>Ciclo 2 - El Extranjero:</strong> Inicia el Ciclo 2. Explica que llegan refugiados a la sociedad (el juego inyecta bots automáticamente). Repite el proceso de fases. El sistema auditará secretamente si la clase ayuda más a los locales que a los inmigrantes.</li>
+          <li><strong>Debriefing Final:</strong> Al terminar, presiona "Ver Debriefing" para proyectar los gráficos. ¡Úsalos para concluir tu presentación sobre la Aporofobia!</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
