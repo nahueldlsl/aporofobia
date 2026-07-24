@@ -77,6 +77,7 @@ class CycleManager {
       p.survivalMet = false;
       p.hasRequestedHelp = false;
       p.hasProtested = false;
+      p.hasSkippedProtest = false;
       p.isInvisible = p.dignity <= 0;
     });
 

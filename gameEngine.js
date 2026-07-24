@@ -42,6 +42,16 @@ class GameEngineFacade {
     return room ? CycleManager.startCycle(room, cycleNum) : null;
   }
 
+  triggerProtest(roomCode, socketId) {
+    const room = this.getRoom(roomCode);
+    return room ? ActionManager.triggerProtest(room, socketId) : null;
+  }
+
+  skipProtest(roomCode, socketId) {
+    const room = this.getRoom(roomCode);
+    return room ? ActionManager.skipProtest(room, socketId) : null;
+  }
+
   payBasicNeeds(roomCode, socketId) {
     const room = this.getRoom(roomCode);
     if (!room) return { error: 'Sala no existe' };

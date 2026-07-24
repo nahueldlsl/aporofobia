@@ -44,6 +44,15 @@ class ActionManager {
     }
   }
 
+  static skipProtest(room, socketId) {
+    const player = room.players.get(socketId);
+    if (!player || player.role !== 'ÁPORO') {
+      return { error: 'Solo los ciudadanos precarizados pueden omitir.' };
+    }
+    player.hasSkippedProtest = true;
+    return { success: true, player };
+  }
+
   static triggerProtest(room, socketId) {
     const player = room.players.get(socketId);
     if (!player || player.role !== 'ÁPORO') {
@@ -155,6 +164,21 @@ class ActionManager {
         room.metrics.foreignerHelpStats.localOptionC++;
         room.metrics.foreignerHelpStats.localTotal++;
       }
+    } else if (decisionChoice === 'D') {
+      if (solver) {
+        solver.resources -= 20;
+        solver.dignity = Math.min(100, solver.dignity + 10);
+      }
+      if (needyPlayer) {
+        needyPlayer.dignity = Math.max(0, needyPlayer.dignity - 25);
+        if (needyPlayer.dignity <= 0) needyPlayer.isInvisible = true;
+        if (needyPlayer.role === 'CLASE_MEDIA') {
+          needyPlayer.nextRole = 'ÁPORO';
+        }
+      }
+      room.metrics.optionACount++; // Consider it a rejection for the sake of aporophobia metrics
+      if (req.isForeigner) room.metrics.foreignerHelpStats.foreignerTotal++;
+      else room.metrics.foreignerHelpStats.localTotal++;
     }
 
     MetricsCalculator.checkCortinaBiases(room);

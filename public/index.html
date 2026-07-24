@@ -135,9 +135,10 @@
           <p id="survivalDescriptionText" style="color: var(--text-muted); margin-bottom: 1rem;">
             Sobrevivir este ciclo tiene un costo. Gastarás recursos para cubrir comida y techo. Si hay crisis, costará más caro.
           </p>
-          <div id="phase1Actions">
+          <div id="phase1Actions" style="display: flex; flex-direction: column; gap: 0.5rem;">
             <button id="btnPaySurvival" class="btn-primary">Cubrir Necesidades Básicas</button>
             <button id="btnProtest" class="btn-primary btn-protest hidden">✊ Convocar Huelga / Asamblea Social</button>
+            <button id="btnSkipProtest" class="btn-secondary hidden" style="border-color: var(--border-subtle); color: var(--text-muted);">Omitir Huelga (Resignación)</button>
           </div>
           <div id="survivalStatus" style="margin-top: 1rem; font-weight: 600;"></div>
         </div>

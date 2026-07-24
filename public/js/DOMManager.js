@@ -33,6 +33,7 @@ export class DOMManager {
       cortinaQuote: document.getElementById('studentCortinaQuote'),
       btnPaySurvival: document.getElementById('btnPaySurvival'),
       btnProtest: document.getElementById('btnProtest'),
+      btnSkipProtest: document.getElementById('btnSkipProtest'),
       survivalStatus: document.getElementById('survivalStatus'),
       survivalDesc: document.getElementById('survivalDescriptionText'),
       objectiveText: document.getElementById('studentObjectiveText'),

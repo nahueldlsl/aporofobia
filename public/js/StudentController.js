@@ -9,6 +9,7 @@ export class StudentController {
   bindEvents() {
     this.dom.student.btnPaySurvival.addEventListener('click', () => this.handlePaySurvival());
     this.dom.student.btnProtest.addEventListener('click', () => this.handleProtest());
+    this.dom.student.btnSkipProtest.addEventListener('click', () => this.handleSkipProtest());
   }
 
   handlePaySurvival() {
@@ -40,11 +41,22 @@ export class StudentController {
     this.dom.student.btnProtest.disabled = true;
     this.socketClient.emit('trigger_protest', null, (res) => {
       if (res && res.success) {
-        this.dom.student.btnProtest.textContent = 'En Huelga ✊';
-        alert(`✊ Convocatoria a Huelga Social registrada (${res.protestsCount} convocatorias acumuladas).`);
+        this.dom.student.btnProtest.classList.add('hidden');
+        this.dom.student.btnSkipProtest.classList.add('hidden');
+        this.dom.student.survivalStatus.innerHTML += `<br><span style="color: var(--gold-wealth);">✊ Te has unido a la Huelga.</span>`;
       } else {
         this.dom.student.btnProtest.disabled = false;
-        alert(res?.error || 'No se pudo registrar la convocatoria.');
+        alert(res?.error || 'Error al convocar huelga');
+      }
+    });
+  }
+
+  handleSkipProtest() {
+    this.socketClient.emit('skip_protest', null, (res) => {
+      if (res && res.success) {
+        this.dom.student.btnProtest.classList.add('hidden');
+        this.dom.student.btnSkipProtest.classList.add('hidden');
+        this.dom.student.survivalStatus.innerHTML += `<br><span style="color: var(--text-muted); font-style: italic;">Has decidido mantener el silencio y esperar tu destino.</span>`;
       }
     });
   }
@@ -111,6 +123,13 @@ export class StudentController {
       s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--emerald-hospitality);">✅ Necesidades básicas cubiertas para este ciclo.</span>`;
     } else if (player.hasRequestedHelp) {
+      if (player.role === 'ÁPORO' && player.hasRequestedHelp && !player.hasProtested && !player.hasSkippedProtest) {
+        s.btnProtest.classList.remove('hidden');
+        s.btnSkipProtest.classList.remove('hidden');
+      } else {
+        s.btnProtest.classList.add('hidden');
+        s.btnSkipProtest.classList.add('hidden');
+      }
       s.btnPaySurvival.disabled = true;
       s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--red-dignity);">⚠️ Tus recursos no cubrieron el umbral. Has gastado todo y enviado una Petición Anónima. Espera ayuda.</span>`;
@@ -228,6 +247,12 @@ export class StudentController {
             <div class="option-tag">${tagC}</div>
             <div class="option-title">Fondo Estratégico de Acogida (Costo: 15 Pts)</div>
             <div class="option-desc">Financias la inclusión completa con dignidad (+30 Dignidad). El solicitante asciende a Clase Media en el próximo ciclo y reduce la desigualdad global.</div>
+          </button>
+
+          <button class="decision-option-btn opt-d" style="background: rgba(168, 85, 247, 0.05); border-color: #a855f7; color: var(--text-main);" onclick="window.app.studentCtrl.submitDecision('${req.id}', 'D')">
+            <div class="option-tag" style="color: #a855f7; border-color: #a855f7; background: rgba(168, 85, 247, 0.1);">Opción D — Inversión Propia / Lujo</div>
+            <div class="option-title">Invertir en Beneficio Propio (Costo: 20 Pts)</div>
+            <div class="option-desc">Gastas 20 Pts en networking y estatus social. Ignoras al excluido porque no tiene nada que ofrecerte a cambio (Homo reciprocans). Ganas +10 de Dignidad de tu clase.</div>
           </button>
         </div>
       `;

@@ -168,7 +168,7 @@ io.on('connection', (socket) => {
   });
 
   // Áporo Collective Strike
-  socket.on('trigger_protest', (callback) => {
+  socket.on('trigger_protest', (data, callback) => {
     if (!socket.roomCode) return;
     const res = gameEngine.triggerProtest(socket.roomCode, socket.id);
     if (typeof callback === 'function') callback(res);
@@ -176,7 +176,15 @@ io.on('connection', (socket) => {
     checkAndAutoAdvance(socket.roomCode);
   });
 
-  socket.on('pay_basic_needs', (callback) => {
+  socket.on('skip_protest', (data, callback) => {
+    if (!socket.roomCode) return;
+    const res = gameEngine.skipProtest(socket.roomCode, socket.id);
+    if (typeof callback === 'function') callback(res);
+    broadcastGameState(socket.roomCode);
+    checkAndAutoAdvance(socket.roomCode);
+  });
+
+  socket.on('pay_basic_needs', (data, callback) => {
     if (!socket.roomCode) return;
     const res = gameEngine.payBasicNeeds(socket.roomCode, socket.id);
     if (typeof callback === 'function') callback(res);
