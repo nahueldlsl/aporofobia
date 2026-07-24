@@ -113,6 +113,13 @@ export class StudentController {
   renderSurvivalUI(player) {
     const s = this.dom.student;
     const cost = this.appState.currentSurvivalCost;
+    if (player.role === 'ÁPORO' && !player.hasProtested && !player.hasSkippedProtest) {
+      s.btnProtest.classList.remove('hidden');
+      s.btnSkipProtest.classList.remove('hidden');
+    } else {
+      s.btnProtest.classList.add('hidden');
+      s.btnSkipProtest.classList.add('hidden');
+    }
 
     if (player.role === 'PENDING') {
       s.btnPaySurvival.disabled = true;
@@ -123,13 +130,6 @@ export class StudentController {
       s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--emerald-hospitality);">✅ Necesidades básicas cubiertas para este ciclo.</span>`;
     } else if (player.hasRequestedHelp) {
-      if (player.role === 'ÁPORO' && player.hasRequestedHelp && !player.hasProtested && !player.hasSkippedProtest) {
-        s.btnProtest.classList.remove('hidden');
-        s.btnSkipProtest.classList.remove('hidden');
-      } else {
-        s.btnProtest.classList.add('hidden');
-        s.btnSkipProtest.classList.add('hidden');
-      }
       s.btnPaySurvival.disabled = true;
       s.btnPaySurvival.classList.add('hidden');
       s.survivalStatus.innerHTML = `<span style="color: var(--red-dignity);">⚠️ Tus recursos no cubrieron el umbral. Has gastado todo y enviado una Petición Anónima. Espera ayuda.</span>`;

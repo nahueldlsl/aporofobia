@@ -70,6 +70,12 @@ class CycleManager {
       } else if (p.role === 'CLASE_MEDIA') {
         const amt = cycleNum === 2 ? Math.floor(Math.random() * 21) + 20 : 50;
         if (cycleNum <= 1) p.resources = amt; else p.resources += amt;
+        
+        // Upward mobility (Meritocracy Illusion)
+        if (p.resources >= 100 && cycleNum > 1) {
+          p.role = 'ÉLITE';
+          p.dignity = 100;
+        }
       } else if (p.role === 'ÁPORO') {
         if (cycleNum <= 1) p.resources = 10; else p.resources += 10;
         if (cycleNum === 4 && p.dignity > 0) p.dignity = Math.max(0, p.dignity - 10);
@@ -205,6 +211,9 @@ class CycleManager {
       if (humans.length === 0) return false;
       return humans.every(p => {
         const hasReq = room.requests.some(r => r.fromId === p.id && r.cycle === room.cycle);
+        if (p.role === 'ÁPORO' && hasReq) {
+          return p.hasProtested || p.hasSkippedProtest;
+        }
         return p.survivalMet || hasReq || p.isInvisible;
       });
     } else if (room.phase === 2) {
