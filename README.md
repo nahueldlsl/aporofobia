@@ -17,12 +17,15 @@ Ante una petición de ayuda, los jugadores con recursos pueden elegir:
 - **D) Inversión Propia / Lujo (Costo 20):** Ignora al pobre y gasta los recursos en lujos o estatus personal. Un riesgo grave para la Clase Media, que si se queda sin ahorros caerá instantáneamente en la pobreza al llegar las crisis.
 
 ### 🏁 Finales Sociológicos
-El motor matemático del juego evalúa el comportamiento colectivo tras los 5 ciclos y puede arrojar **8 finales distintos**, entre ellos:
-1. **Colapso Aporofóbico**: Desigualdad extrema (Índice Gini >= 0.85).
-2. **Utopía Cosmopolita**: Justicia estructural lograda.
-3. **Sociedad Rota**: Silencio estructural, los vulnerables mueren socialmente y desaparecen.
-4. **Distopía Aporofóbica**: Indiferencia normalizada.
-5. **Trampa Nacionalista**: Hostilidad pura hacia los extranjeros.
+El motor matemático del juego evalúa el comportamiento colectivo tras los 5 ciclos y puede arrojar **8 finales distintos**:
+1. **Colapso Aporofóbico**: Desigualdad extrema (Índice Gini >= 0.85). El tejido social se rompe.
+2. **Trampa Nacionalista**: Igualdad interna asegurada, pero excluyendo absolutamente al extranjero.
+3. **Utopía Cosmopolita**: Justicia estructural y hospitalidad plena logradas.
+4. **Pobreza Cero**: Nadie necesitó pedir ayuda al final del juego y no hubo excluidos (Se logra si hay redistribución o huelgas muy tempranas).
+5. **Sociedad Rota (Silencio Estructural)**: Nadie pide ayuda, pero solo porque los más vulnerables ya habían sido invisibilizados (0 Dignidad).
+6. **Distopía Aporofóbica**: La sociedad normalizó la indiferencia (Más del 70% de decisiones de rechazo).
+7. **Avance Cosmopolita**: Hubo gran cantidad de actos de justicia, pero insuficientes para derribar toda la desigualdad.
+8. **Estancamiento Social**: Se brindó caridad mínima paternalista. La estructura de desigualdad se mantiene intacta.
 
 ---
 
