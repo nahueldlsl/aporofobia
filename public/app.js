@@ -391,15 +391,10 @@ socket.on('player_private_update', ({ player, assignedRequests, myRequest }) => 
     survivalStatus.innerHTML = ''; // Limpiar advertencias de ciclos anteriores
 
     const survivalDescElement = document.getElementById('survivalDescriptionText');
-    if (player.role === 'ÁPORO') {
+    if (player.resources < window.currentSurvivalCost) {
       btnPaySurvival.textContent = `Gastar todo (${player.resources} Pts) y Pedir Ayuda`;
       if (survivalDescElement) {
         survivalDescElement.textContent = 'Tus recursos no alcanzan para sobrevivir. Gastarás todo lo que tienes y enviarás una Petición Anónima. Depender de los demás expone tu dignidad.';
-      }
-    } else if (player.role === 'CLASE_MEDIA' && player.resources < window.currentSurvivalCost) {
-      btnPaySurvival.textContent = `Gastar todo (${player.resources} Pts) y Pedir Ayuda`;
-      if (survivalDescElement) {
-        survivalDescElement.textContent = 'La inflación te ha golpeado. Gastarás tus ahorros y pedirás ayuda al sistema para no caer en la pobreza.';
       }
     } else {
       btnPaySurvival.textContent = `Cubrir Necesidades Básicas (${window.currentSurvivalCost} Pts)`;
